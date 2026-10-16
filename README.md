@@ -5,7 +5,7 @@
 * [FACEIT-detection.md](FACEIT-detection.md).
 * [Vanguard-detection.md](Vanguard-detection.md).
 * [Battleye-detection.md](Battleye-detection.md).
-* [EA Javelin Anticheat-detection.md](EA-Javelin-Anticheat-detection.md).
+* [EA Javelin Anticheat-detection.md](EA Javelin Anticheat-detection.md).
 * [eac-detection.md](eac-detection.md).
 ## License
 MIT
