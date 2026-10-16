@@ -1,4 +1,4 @@
-# AtiCheat-detection
+# AntiCheat-detection
 
 ## Documentation
 ### All anti-cheat (AC) analysis was performed by [REA](https://github.com/morluto/rea).
