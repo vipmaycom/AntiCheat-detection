@@ -1,0 +1,5 @@
+C:\Users\joaop\Antigravity-Workspace\vgc_src\main.c;C:\Users\joaop\Antigravity-Workspace\vgc_src\build\intermediate\Release\main.obj
+C:\Users\joaop\Antigravity-Workspace\vgc_src\driver_ipc.c;C:\Users\joaop\Antigravity-Workspace\vgc_src\build\intermediate\Release\driver_ipc.obj
+C:\Users\joaop\Antigravity-Workspace\vgc_src\process_watcher.c;C:\Users\joaop\Antigravity-Workspace\vgc_src\build\intermediate\Release\process_watcher.obj
+C:\Users\joaop\Antigravity-Workspace\vgc_src\telemetry_tls.c;C:\Users\joaop\Antigravity-Workspace\vgc_src\build\intermediate\Release\telemetry_tls.obj
+C:\Users\joaop\Antigravity-Workspace\vgc_src\game_ipc_server.c;C:\Users\joaop\Antigravity-Workspace\vgc_src\build\intermediate\Release\game_ipc_server.obj
