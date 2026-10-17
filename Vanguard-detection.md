@@ -29,8 +29,8 @@ Comprehensive mapping of Riot Vanguard (`vgk.sys` / `vgc.exe`) kernel instrument
 |---|---|---|
 | Unsigned driver (`NtLoadDriver`) | **YES** | `SERVICE_BOOT_START` initialization + Secure Boot & TPM 2.0 enforcement; `SeRegisterImageVerificationCallback` rejects pre-execution. |
 | Test-signed driver (`TESTSIGNING`) | **YES** | Direct BCD element query via `ZwQuerySystemInformation(SystemBootEnvironmentInformation)` + kernel code integrity flags. |
-| Known BYOVD (RTCore64, dbk64, Dell DBUtil, Gdrv, Capcom, AsrDrv) | **YES** | Encrypted driver certificate and SHA-256 blacklist; monitors pool allocations and device interface GUIDs. |
-| Unknown BYOVD with valid WHQL | **PARTIAL** | Monitored dynamically: physical memory mapping operations, cross-process handle creation, and dispatch table detours trigger heuristic alerts. |
+| Known BYOVD (RTCore64, dbk64, Dell DBUtil, Gdrv, Capcom, AsrDrv) | **YES** | Encrypted driver certificate and SHA-256 blacklist. Maintains three independent in-memory copies of the blacklist and cross-validates them periodically so that if an external kernel driver patches or zeroes out the primary blacklist in RAM to load a vulnerable driver, the mismatch is immediately caught. |
+| Unknown BYOVD with valid WHQL | **PARTIAL** | Monitored dynamically: physical memory mapping operations, cross-process handle creation, and dispatch table detours trigger heuristic alerts. Cross-checks driver signer chains against an internal pinned list of 27 trusted Root CAs (including Riot's internal anti-cheat authority). |
 | Cheat Engine kernel (`dbk64.sys`) | **YES** | Hardcoded certificate and module name blacklist; active object directory scanning. |
 | Manual-mapped driver (KDMapper / Capcom) | **YES** | High-frequency NMI stack frame inspection (interrupts all cores, checks `RIP` against `PsLoadedModuleList`); page table audits flag `NX=0` on pool memory. |
 | Driver with dev build path PDB | **YES** | Kernel memory scanner checks driver PE headers for suspicious debug paths and linker signatures. |
@@ -49,7 +49,7 @@ Comprehensive mapping of Riot Vanguard (`vgk.sys` / `vgc.exe`) kernel instrument
 | EPT page splitting (execute vs read divergence) | **YES** | Forced `INVLPG` execution timing checks combined with physical memory cross-reads; VM-exit latency measured. |
 | TSC manipulation | **YES** | `RDTSC`/`RDTSCP` multi-sample delta compared against hardware ACPI Power Management Timer (`PMT`) and APIC timer. |
 | Hyper-V / VBS binary patching | **YES** | Disk vs memory hash comparison of `securekernel.exe` and hypervisor binaries. |
-| Type-1 / Nested HV below Windows | **YES / PARTIAL** | Windows 11 mandates VBS/HVCI; nested hypervisors induce VM-exit latency penalties caught during boot calibration. |
+| Type-1 / Nested HV below Windows | **YES / PARTIAL** | Windows 11 mandates VBS/HVCI; nested hypervisors induce VM-exit latency penalties caught during boot calibration and continuous per-subsystem execution time profiling (tracking sample count, average duration, and maximum latency spikes). |
 | VBS / HVCI state change | **YES** | Direct verification via `VslGetSecurePciEnabled` and `ZwQuerySystemInformation(SystemIsolatedUserModeInformation)`. |
 | CR4 / CR0 register masking | **YES** | Verification of reserved control register bits; attempts to shadow `CR4.VMXE` flag timing discrepancies. |
 | ACPI table manipulation | **YES** | Physical table reads via `HalAcpiGetTableEx` checking MADT, SLIC, FADT, and DMAR tables. |
@@ -115,6 +115,10 @@ Calls Vanguard monitors for unauthorized interaction with protected processes (`
 | `KeSetCoalescableTimer` / `KeSetTimerEx` | High-frequency kernel DPC scheduling with millisecond jitter for background auditing. |
 | `IoEnumerateDeviceObjectList` | Walks kernel device lists to detect unauthorized `DEVICE_OBJECT` endpoints. |
 | `Tbsip_Submit_Command` | Submits raw TPM 2.0 command bytes to query Endorsement Keys and PCR banks. |
+| `KeRegisterBugCheckReasonCallback` | Writes Vanguard's internal integrity state and active detection context directly into Windows crash dumps (`MEMORY.DMP` / `Minidump`) whenever a BSOD occurs. |
+| `ExAllocateCacheAwareRundownProtection` | Synchronizes active kernel hooks and callbacks across all CPU cores so internal hooks cannot be unmapped or modified mid-execution. |
+| `KeSetActualBasePriorityThread` | Elevates Vanguard's internal scanner and telemetry worker threads to high kernel scheduling priority so external CPU starvation attacks cannot delay scans. |
+| `MmMapLockedPagesSpecifyCache(UserMode)` | Maps a shared, lock-free kernel-to-usermode telemetry ring buffer directly into `vgc.exe` for real-time event streaming without IOCTL overhead. |
 
 ---
 
@@ -128,6 +132,7 @@ Calls Vanguard monitors for unauthorized interaction with protected processes (`
 | Image Load Notify | `PsSetLoadImageNotifyRoutine` | Audits every DLL and driver image loaded into user or kernel space before entry execution. |
 | Driver Image Verification | `SeRegisterImageVerificationCallback` | Intercepts kernel-mode driver verification before execution starts. |
 | NMI Callback | `KeRegisterNmiCallback` | Executes high-frequency interruption cycles across all cores to audit active registers and stack return addresses. |
+| BugCheck Reason Callback | `KeRegisterBugCheckReasonCallback` | Embeds a secondary forensic data block into Windows crash dumps on BSOD so `vgc.exe` can inspect what caused the crash after reboot. |
 | I/O Control Interceptor | Dispatch Table (`IRP_MJ_DEVICE_CONTROL`) | Restricts `\Device\vgk` exclusively to authenticated `vgc.exe` user-mode process tokens. |
 
 ---
@@ -138,6 +143,7 @@ Calls Vanguard monitors for unauthorized interaction with protected processes (`
 |---|---|
 | CR3 Page Directory Walking | Reads target process CR3 register; manually walks PML4 -> PDPT -> PD -> PT in physical RAM, bypassing software API hooks. |
 | System PTE Attribute Verification | Audits kernel Page Table Entries: flags any page where `NoExecute (NX) == 0` that falls outside legitimate `.text` sections of signed modules. |
+| Driver Self-Cloaking (Dynamic PTE Hiding) | Dynamically unmaps or alters the Page Table Entries (PTEs) of Vanguard's own sensitive code and encryption keys in RAM when idle, flushing the CPU cache so external cheat drivers or DMA cards attempting to dump or signature-scan `vgk.sys` in memory read invalid/blank pages or trigger a page fault. |
 | High-Frequency NMI Stack Profiling | Generates periodic NMIs across all cores; captures `RIP`, `RSP`, `RBP`; unwinds frames using `.pdata`; flags return addresses in unbacked memory. |
 | VAD Tree Cross-Referencing | Traverses `EPROCESS->VadRoot` AVL tree; cross-checks `VadFlags` with physical PTE protections to detect hidden memory regions (MDL allocations). |
 | SIMD Content Scanner (AVX2/SSE) | Scans kernel pools and committed process memory at 32-64 bytes/cycle searching for known cheat signatures, strings, and hook trampolines. |
@@ -183,7 +189,7 @@ Calls Vanguard monitors for unauthorized interaction with protected processes (`
 | Named Device Object (`\Device\...`) + `CreateFile` | **YES** | Object Manager directory walk (`\Device\` & `\DosDevices\`), `IoEnumerateDeviceObjectList`, and global handle sweeps (`ZwQuerySystemInformation(0x10)`). |
 | `MajorFunction` Dispatch Table Hooking (`beep.sys`, `null.sys`) | **YES** | Dispatch Table Integrity Audits: periodic sweeps of `DriverObject->MajorFunction[IRP_MJ_*]` verifying pointers reside within `.text` module boundaries. |
 | Subsystem Dispatch Pointer Hooks (`win32k.sys`, `dxgkrnl.sys`) | **YES** | Function pointer hashing and boundary checking across graphics dispatch tables. |
-| Kernel MDL Mapping (`MmMapLockedPagesSpecifyCache` with `UserMode`) | **YES** | Paging Hierarchy (CR3) vs VAD Tree Cross-Check: PTE has `User/Supervisor = 1` without a corresponding `VAD` node in `EPROCESS->VadRoot`. |
+| Kernel MDL Mapping (`MmMapLockedPagesSpecifyCache` with `UserMode`) | **YES** | Paging Hierarchy (CR3) vs VAD Tree Cross-Check: PTE has `User/Supervisor = 1` without a corresponding `VAD` node in `EPROCESS->VadRoot` (explicitly whitelisting only Vanguard's own shared telemetry buffer inside `vgc.exe`). |
 | Named Shared Memory (`\BaseNamedObjects\...`) | **YES** | System-wide Object Manager scans and handle table iteration. |
 | Usermode-Allocated Shared Memory (Physical Translation / CR3) | **NO** | Zero kernel object footprint; memory allocated via `VirtualAlloc` in external process (valid VAD node); driver reads/writes via physical PFN mapping. |
 | Data-Only Buffer / Queue in Non-Executable Kernel Memory | **NO** | Raw data read/write in non-executable buffers (`NX=1`) without modifying code sections (`.text`) or dispatch pointers leaves no hook signature. |
@@ -218,9 +224,9 @@ While NMIs (`HIGH_LEVEL` / IRQL 31/32) handle instantaneous execution profiling,
    - Verifies that target addresses strictly reside within the original signed binary boundaries on disk.
 3. **Handle Table Iteration:**
    - Scans system-wide handle tables to identify processes holding open handles to unregistered `DEVICE_OBJECT` endpoints.
-4. **Heartbeat & Telemetry Generation:**
+4. **Heartbeat & Real-Time Shared-Memory Telemetry:**
    - Calculates rolling integrity hashes over monitored memory regions.
-   - Encrypts and queues heartbeat payloads for consumption by `vgc.exe` via ALPC/IOCTL.
+   - Streams detection events and per-subsystem execution timing metrics directly into `vgc.exe` through a lock-free shared-memory ring buffer synchronized via kernel events.
 
 ### 12.3 Anti-Tampering & Evasion Countermeasures
 
@@ -406,6 +412,7 @@ When a ban is issued, Vanguard and the Riot Client establish persistent markers 
 | `C:\Users\<User>\AppData\Local\Riot Games\` | CEF (Chromium Embedded Framework) web storage, crash dumps, and local installation metadata. |
 | `C:\Users\<User>\AppData\Local\VALORANT\Saved\` | Config files, crash report context blobs (`CrashContext.runtime-xml`), and encrypted telemetry cookies. |
 | `C:\Program Files\Riot Vanguard\` | Runtime binary directory; contains log files (`vgk.sys` logs) and persistent session signatures. |
+| `C:\Windows\vgk0001.dat` (`\SystemRoot\vgk0001.dat`) | Early-boot persistent state & telemetry file written directly from kernel space by `vgk.sys` before user-mode services start. |
 
 ### 20.3 Low-Level NTFS & Windows Forensic Artifacts
 
@@ -434,7 +441,7 @@ When a ban is issued, Vanguard and the Riot Client establish persistent markers 
 
 To fully sanitize a machine following a hardware ban:
 1. **Uninstall Game & Services:** Uninstall VALORANT and Riot Vanguard via official uninstaller (unregisters `vgk` and `vgc` services).
-2. **Purge Filesystem Traces:** Delete all directories under `ProgramData\Riot Games`, `AppData\Local\Riot Games`, `AppData\Local\VALORANT`, and `Program Files\Riot Vanguard`.
+2. **Purge Filesystem Traces:** Delete all directories under `ProgramData\Riot Games`, `AppData\Local\Riot Games`, `AppData\Local\VALORANT`, `Program Files\Riot Vanguard`, and `C:\Windows\vgk0001.dat`.
 3. **Clean System Registries:** Delete `HKLM\SOFTWARE\Riot Games`, `HKCU\Software\Riot Games`, and reset `MachineGuid` / `HwProfileGuid`.
 4. **Purge Windows Forensic Artifacts:** Flush ShimCache, clear Amcache (`Amcache.hve`), clear Prefetch (`Windows\Prefetch\`), and clear Windows Event Logs (`System.evtx`, `Application.evtx`).
 5. **Reset NTFS Change Journal:** Reset or truncate `$UsnJrnl` via `fsutil usn deletejournal /d C:`.
@@ -455,11 +462,12 @@ When Vanguard encounters fatal kernel integrity violations or anti-tamper failur
 |---|---|---|
 | **`VAN 128`** | Heartbeat desynchronization between `vgc.exe` and `vgk.sys`; DPC timer starved or driver frozen. | Process exit code + Riot Client telemetry log. |
 | **`VAN 152` / `VAL 5`** | Hardware ban directive received from Riot server. | Client ban state cached in registry and cloud database. |
-| **`BugCheck 0x109`** | `CRITICAL_STRUCTURE_CORRUPTION` triggered by Microsoft PatchGuard if DPC queues, IDT, or MSRs are hooked. | `%SystemRoot%\MEMORY.DMP` (Full memory dump). |
-| **`BugCheck 0x133`** | `DPC_WATCHDOG_VIOLATION` triggered if CPU core is held at elevated IRQL to block Vanguard DPCs. | `%SystemRoot%\Minidump\*.dmp` (Mini crash dump). |
-| **`BugCheck 0x7F`** | `DOUBLE_FAULT` triggered if unbacked code incurs a page fault while executing at `HIGH_LEVEL` in NMI. | `%SystemRoot%\MEMORY.DMP`. |
+| **`BugCheck 0x109`** | `CRITICAL_STRUCTURE_CORRUPTION` triggered by Microsoft PatchGuard if DPC queues, IDT, or MSRs are hooked. | `%SystemRoot%\MEMORY.DMP` (Full memory dump) + `VGK` secondary dump block. |
+| **`BugCheck 0x133`** | `DPC_WATCHDOG_VIOLATION` triggered if CPU core is held at elevated IRQL to block Vanguard DPCs. | `%SystemRoot%\Minidump\*.dmp` (Mini crash dump) + `VGK` secondary dump block. |
+| **`BugCheck 0x7F`** | `DOUBLE_FAULT` triggered if unbacked code incurs a page fault while executing at `HIGH_LEVEL` in NMI. | `%SystemRoot%\MEMORY.DMP` + `VGK` secondary dump block. |
+| **`KeRegisterBugCheckReasonCallback`** | Kernel crash callback registered by `vgk.sys` during boot initialization. | Automatically writes Vanguard's internal integrity flags, active hook status, and last executing scanner routine inside Windows `.dmp` files during any BSOD for post-reboot inspection by `vgc.exe`. |
 
-*Cleanup Requirement:* Always purge `%SystemRoot%\MEMORY.DMP` and `%SystemRoot%\Minidump\*.dmp` after any crash, as crash dumps contain full register state dumps, stack frames, and unbacked memory pages proving the execution of unauthorized kernel code.
+*Cleanup Requirement:* Always purge `%SystemRoot%\MEMORY.DMP`, `%SystemRoot%\Minidump\*.dmp`, and `%SystemRoot%\vgk0001.dat` after any crash, as crash dumps contain both full register/stack states and Vanguard's embedded secondary forensic block.
 
 ---
 
@@ -553,7 +561,7 @@ The architectural necessity of Vanguard operating as a boot-start service:
 ### 24.2 Strategic Advantages of Early Boot
 1. **Preemptive Callback Registration:** `vgk.sys` registers `SeRegisterImageVerificationCallback` and `PsSetLoadImageNotifyRoutine` before any vulnerable third-party driver can load, ensuring all subsequent kernel modules pass through Vanguard's certificate filter.
 2. **Clean Baseline Memory Snapshot:** Samples system page tables and kernel dispatch tables before any user-mode code runs, creating an uncorrupted reference baseline for later integrity checks.
-3. **Self-Integrity Lock:** `vgk.sys` calculates hashes of its own `.text` and `.rdata` sections against its signed on-disk image. Any modification to `vgk.sys` on disk prevents driver initialization, halting game access until repaired.
+3. **Self-Integrity Lock & Dynamic Memory Cloaking:** `vgk.sys` hashes its own code and read-only data sections against its signed on-disk image, exposes dual attestation verification points to `vgc.exe`, and dynamically hides its own sensitive memory pages in the CPU page tables so external drivers or DMA hardware cannot read or signature-scan Vanguard in RAM.
 
 ---
 
@@ -657,4 +665,3 @@ Target Window (VALORANT.exe - WM_INPUT)
 | **Hardware Pass-Through (Host $\rightarrow$ MCU $\rightarrow$ PC)** | MCU intercepts real mouse and passes data through with deltas added. | Hardware latency adds measurable delay ($\Delta t > 2\text{ms}$) to USB interrupt frames; fails USB microframe timing audits if MCU processing is slow. |
 | **Synthetic `MouseClassServiceCallback` Call** | Memory call-site is unbacked or lacks associated hardware `DEVICE_OBJECT` in `mouclass.sys`. | None — completely blocked by Vanguard kernel callback and caller-module verification. |
 | **`SendInput` / `mouse_event`** | Flagged with `LLMHF_INJECTED` bit in `win32kbase.sys`; filtered out directly by Vanguard input hook. | None — user-mode injection is completely dead against Valorant. |
-
