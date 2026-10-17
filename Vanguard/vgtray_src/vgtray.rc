@@ -1,0 +1,56 @@
+/*
+ * vgtray.rc
+ * Resource script for vgtray.exe matching C:\Program Files\Riot Vanguard\vgtray.exe
+ * Version: 1.19.1-18+20261001.143443
+ */
+
+#include <windows.h>
+#include "vgtray.h"
+
+/* Menu Resource ID 103 (0x67) matching PE RT_MENU 103 */
+IDR_TRAY_MENU MENU
+BEGIN
+    POPUP "VanguardTray"
+    BEGIN
+        MENUITEM "Show Panel",              IDM_TRAY_SHOW_PANEL
+        MENUITEM "Advanced View",           IDM_TRAY_TOGGLE_ADVANCED
+        MENUITEM SEPARATOR
+        MENUITEM "Save Logs...",            IDM_TRAY_SAVE_LOGS
+        POPUP "More"
+        BEGIN
+            MENUITEM "Exit Vanguard",       IDM_TRAY_EXIT_VANGUARD
+            MENUITEM "Uninstall Vanguard",  IDM_TRAY_UNINSTALL_VANGUARD
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Exit Tray",               IDM_TRAY_EXIT_TRAY
+    END
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    1,19,1,18
+ PRODUCTVERSION 1,19,1,18
+ FILEFLAGSMASK  0x3fL
+ FILEFLAGS      0x0L
+ FILEOS         VOS_NT_WINDOWS32
+ FILETYPE       VFT_APP
+ FILESUBTYPE    0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName",      "Riot Games, Inc."
+            VALUE "FileDescription",  "Vanguard Tray"
+            VALUE "FileVersion",      "1.19.1-18+20261001.143443"
+            VALUE "InternalName",     "vgtray.exe"
+            VALUE "LegalCopyright",   "Copyright (C) 2019-2026 Riot Games, Inc."
+            VALUE "OriginalFilename", "vgtray.exe"
+            VALUE "ProductName",      "Vanguard Tray"
+            VALUE "ProductVersion",   "1.19.1-18+20261001.143443"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
