@@ -1,0 +1,4 @@
+LIBRARY vgk.sys
+EXPORTS
+    Egg
+    Egg2

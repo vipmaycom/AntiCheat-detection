@@ -1,0 +1,11 @@
+C:\Users\joaop\Antigravity-Workspace\vgk_src\driver.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\driver.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\crypto_cng.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\crypto_cng.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\byovd_scanner.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\byovd_scanner.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\ipi_apc_stackwalk.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\ipi_apc_stackwalk.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\memory_mdl.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\memory_mdl.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\callbacks.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\callbacks.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\dpc_telemetry.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\dpc_telemetry.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\hv_antidebug.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\hv_antidebug.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\pci_dma_acpi.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\pci_dma_acpi.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\hwid_tpm_smbios.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\hwid_tpm_smbios.obj
+C:\Users\joaop\Antigravity-Workspace\vgk_src\usb_hid_mouse.c;C:\Users\joaop\Antigravity-Workspace\vgk_src\build\intermediate\Debug\usb_hid_mouse.obj

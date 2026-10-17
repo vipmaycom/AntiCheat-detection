@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.35207.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vgk", "vgk.vcxproj", "{B8F24071-9C4D-4E83-A102-7D3E6A10B552}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8F24071-9C4D-4E83-A102-7D3E6A10B552}.Debug|x64.ActiveCfg = Debug|x64
+		{B8F24071-9C4D-4E83-A102-7D3E6A10B552}.Debug|x64.Build.0 = Debug|x64
+		{B8F24071-9C4D-4E83-A102-7D3E6A10B552}.Release|x64.ActiveCfg = Release|x64
+		{B8F24071-9C4D-4E83-A102-7D3E6A10B552}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4E71B2A9-5503-489F-9B64-D1E3208AF091}
+	EndGlobalSection
+EndGlobal

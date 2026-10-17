@@ -1,0 +1,14 @@
+﻿  driver.c
+  crypto_cng.c
+  byovd_scanner.c
+  ipi_apc_stackwalk.c
+  memory_mdl.c
+  callbacks.c
+  dpc_telemetry.c
+  hv_antidebug.c
+  pci_dma_acpi.c
+  hwid_tpm_smbios.c
+  usb_hid_mouse.c
+  Gerando Código...
+     Criando biblioteca C:\Users\joaop\Antigravity-Workspace\vgk_src\build\Release\vgk.lib e objeto C:\Users\joaop\Antigravity-Workspace\vgk_src\build\Release\vgk.exp
+  vgk.vcxproj -> C:\Users\joaop\Antigravity-Workspace\vgk_src\build\Release\vgk.sys
