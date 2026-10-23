@@ -10,6 +10,7 @@
     * [User-Mode Anti-Tamper Module (`vgm.exe`)](Vanguard/vgm_src/README.md).
     * [System Tray Utility (`vgtray.exe`)](Vanguard/vgtray_src/README.md).
 * [Battleye-detection.md](Battleye-detection.md).
+   * [BEClient (`BEClient_x64.dll`)](BEClient-detection.md).
 * [EA Javelin Anticheat-detection.md](EAJavelinAnticheat-detection.md).
 * [eac-detection.md](eac-detection.md).
 ## License
