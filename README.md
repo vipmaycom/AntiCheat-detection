@@ -12,7 +12,9 @@
 * [Battleye-detection.md](Battleye-detection.md).
    * [BEClient (`BEClient_x64.dll`)](BEClient-detection.md).
 * [EA Javelin Anticheat-detection.md](EAJavelinAnticheat-detection.md).
-* [eac-detection.md](eac-detection.md).
+* [eac-detection(rust).md](eac-detection.md).
+* [Denuvo-detection.md](denuvo-detection.md).
+* [eac-detection(fortinite).md](eac-detection2.md).
 ## License
 MIT
 
