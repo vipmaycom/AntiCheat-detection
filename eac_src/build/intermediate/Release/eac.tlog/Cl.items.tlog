@@ -1,0 +1,11 @@
+C:\Users\pc\Desktop\eac_src\driver.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\driver.obj
+C:\Users\pc\Desktop\eac_src\minifilter.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\minifilter.obj
+C:\Users\pc\Desktop\eac_src\cr3_pagewalk_stack.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\cr3_pagewalk_stack.obj
+C:\Users\pc\Desktop\eac_src\memory_vad_scanner.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\memory_vad_scanner.obj
+C:\Users\pc\Desktop\eac_src\callbacks.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\callbacks.obj
+C:\Users\pc\Desktop\eac_src\byovd_softpub.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\byovd_softpub.obj
+C:\Users\pc\Desktop\eac_src\dpc_telemetry.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\dpc_telemetry.obj
+C:\Users\pc\Desktop\eac_src\hv_antidebug.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\hv_antidebug.obj
+C:\Users\pc\Desktop\eac_src\pci_dma_acpi.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\pci_dma_acpi.obj
+C:\Users\pc\Desktop\eac_src\hwid_tpm_smbios.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\hwid_tpm_smbios.obj
+C:\Users\pc\Desktop\eac_src\usb_hid_mouse.c;C:\Users\pc\Desktop\eac_src\build\intermediate\Release\usb_hid_mouse.obj
