@@ -15,6 +15,7 @@
 * [eac-detection(rust).md](eac-detection.md).
 * [Denuvo-detection.md](denuvo-detection.md).
 * [eac-detection(fortinite).md](eac-detection2.md).
+    * Reconstructed Source Implementation: [Kernel Driver (`EasyAntiCheat_EOS.sys`)](eac_src/README.md).
 ## License
 MIT
 
