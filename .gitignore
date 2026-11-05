@@ -1,0 +1,14 @@
+build/
+*.obj
+*.exe
+*.pdb
+*.tlog
+*.recipe
+*.log
+*.iobj
+*.ipdb
+*.res
+.vs/
+x64/
+Release/
+Debug/
