@@ -1,0 +1,3 @@
+LIBRARY EasyAntiCheat_EOS.sys
+EXPORTS
+    DriverEntry
